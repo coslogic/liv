@@ -80,7 +80,7 @@ async function collectEventQueue(m: MarketConfig, r: RedisConfig) {
       console.error(m.marketName, err.toString())
     }
     await sleep({
-      Seconds: process.env.INTERVAL ? parseInt(process.env.INTERVAL) : 10,
+      Seconds: process.env.INTERVAL ? parseInt(process.env.INTERVAL) : 60,
     })
   }
 }
@@ -95,40 +95,63 @@ if (redisUrl.password !== '') {
 
 const network = 'mainnet-beta'
 const clusterUrl =
-  process.env.RPC_ENDPOINT_URL || 'https://solana-api.projectserum.com'
+  process.env.RPC_ENDPOINT_URL || 'https://api.mainnet-beta.solana.com'
 const programIdV3 = '9xQeWvG816bUx9EPjHmaT23yvVM2ZWbrrpZb9PusVFin'
 
 const nativeMarketsV3: Record<string, string> = {
-  'BTC/USDT': 'C1EuT9VokAKLiW7i2ASnZUvxDoKuKkCpDDeNxAptuNe4',
-  'ETH/USDT': '7dLVkUfBVfCGkFhSXDCq1ukM9usathSgS716t643iFGF',
-  'SOL/USDT': 'HWHvQhFmJB3NUcu1aihKmrKegfVxBEHzwVX6yZCKEsi1',
-  'SRM/USDT': 'AtNnsY1AyRERWJ8xCskfz38YdvruWVJQUVXgScC1iPb',
-  'RAY/USDT': 'teE55QrL4a4QSfydR9dnHF97jgCfptpuigbb53Lo95g',
-
-  'BTC/USDC': 'A8YFbxQYFVqKZaoYJLLUVcQiWP7G2MeEgW5wsAQgMvFw',
-  'ETH/USDC': '4tSvZvnbyzHXLMTiFonMyxZoHmFqau1XArcRCVHLZ5gX',
-  'SOL/USDC': '9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT',
-  'SRM/USDC': 'ByRys5tuUWDgL73G8JBAEfkdFf8JWBzPBDHsBVQ5vbQA',
-
-  'MCAPS/USDC': 'GgzXqy6agt7nnfoPjAEAFpWqnUwLBK5r2acaAQqXiEM8',
-  'MNGO/USDC': '3d4rzwpy9iGdCZvgxcu7B1YocYffVLsQXPXkBZKt2zLc',
-
-  'USDT/USDC': '77quYg4MGneUdjgXCunt9GgM1usmrxKY31twEy3WHwcS',
-  'FTT/USDC': '2Pbh1CvRVku1TgewMfycemghf6sU9EyuFDcNXqvRmSxc',
-  'RAY/USDC': '2xiv8A5xrJ7RnGdxXB42uFEkYHJjszEhaJyKKt4WaLep',
-  'COPE/USDC': '6fc7v3PmjZG9Lk2XTot6BywGyYLkBQuzuFKd4FpCsPxk',
-  'SBR/USDC': 'HXBi8YBwbh4TXF6PjVw81m8Z3Cc4WBofvauj5SBFdgUs',
-  'STEP/USDC': '97qCB4cAVSTthvJu3eNoEx6AY6DLuRDtCoPm5Tdyg77S',
-
-  /*
-  'CCAI/USDC': '7gZNLDbWE73ueAoHuAeFoSu7JqmorwCLpNTBXHtYSFTa',
-  'FIDA/USDC': 'E14BKBhDWD4EuTkWj1ooZezesGxMW8LPCps4W5PuzZJo',
-  'MER/USDC': 'G4LcexdCzzJUKZfqyVDQFzpkjhB1JoCNL8Kooxi9nJz5',
-  'renDOGE/USDC': '5FpKCWYXgHWZ9CdDMHjwxAfqxJLdw2PRXuAmtECkzADk',
-  'SLRS/USDC': '2Gx3UfV831BAh8uQv1FKSPKS9yajfeeD8GJ4ZNb2o2YP',
-  'SNY/USDC': 'DPfj2jYwPaezkCmUNm5SSYfkrkz8WFqwGLcxDDUsN3gA',
-  'TULIP/USDC': '8GufnKq7YnXKhnB3WNhgy5PzU9uvHbaaRrZWQK6ixPxW',
-  */
+  'BTC/USDT':'C1EuT9VokAKLiW7i2ASnZUvxDoKuKkCpDDeNxAptuNe4',
+  'ETH/USDT':'7dLVkUfBVfCGkFhSXDCq1ukM9usathSgS716t643iFGF',
+  'SOL/USDT':'HWHvQhFmJB3NUcu1aihKmrKegfVxBEHzwVX6yZCKEsi1',
+  'SRM/USDT':'AtNnsY1AyRERWJ8xCskfz38YdvruWVJQUVXgScC1iPb',
+  'RAY/USDT':'teE55QrL4a4QSfydR9dnHF97jgCfptpuigbb53Lo95g',
+  'BTC/USDC':'A8YFbxQYFVqKZaoYJLLUVcQiWP7G2MeEgW5wsAQgMvFw',
+  'ETH/USDC':'4tSvZvnbyzHXLMTiFonMyxZoHmFqau1XArcRCVHLZ5gX',
+  'SOL/USDC':'9wFFyRfZBsuAha4YcuxcXLKwMxJR43S7fPfQLusDBzvT',
+  'SRM/USDC':'ByRys5tuUWDgL73G8JBAEfkdFf8JWBzPBDHsBVQ5vbQA',
+  'RAY/USDC':'2xiv8A5xrJ7RnGdxXB42uFEkYHJjszEhaJyKKt4WaLep',
+  'USDT/USDC':'77quYg4MGneUdjgXCunt9GgM1usmrxKY31twEy3WHwcS',
+  'FIDA/USDC':'E14BKBhDWD4EuTkWj1ooZezesGxMW8LPCps4W5PuzZJo',
+  'FTT/USDC':'2Pbh1CvRVku1TgewMfycemghf6sU9EyuFDcNXqvRmSxc',
+  'KIN/USDC':'Bn6NPyr6UzrFAwC4WmvPvDr2Vm8XSUnFykM2aQroedgn',
+  'KIN/USDT':'4nCFQr8sahhhL4XJ7kngGFBmpkmyf3xLzemuMhn6mWTm',
+  'COPE/USDC':'6fc7v3PmjZG9Lk2XTot6BywGyYLkBQuzuFKd4FpCsPxk',
+  'SNY/USDC':'DPfj2jYwPaezkCmUNm5SSYfkrkz8WFqwGLcxDDUsN3gA',
+  'BOP/USDC':'7MmPwD1K56DthW14P1PnWZ4zPCbPWemGs3YggcT1KzsM',
+  'BOP/RAY':'6Fcw8aEs7oP7YeuMrM2JgAQUotYxa4WHKHWdLLXssA3R',
+  'DAL/USDT':'5BdxDDTm5G3zFC3DvGrr1nnN95ifE7RDnkdCM11xYCEV',
+  'DAL/USDC':'J5EzuaPHiB2zJ2aTfsm5gTSGsBWQbWXc13RBcmiuw1E7',
+  'TUTL/SOL':'CtLUvMyGDEP9dkwo9yR93s4H7eibUpUHmVUd9YSKJsPJ',
+  'HAMS/USDC':'5j6hdwx4eW3QBYZtRjKiUj7aDA1dxDpveSHBznwq7kUv',
+  'INO/USDC':'HyERWE8TEQmDX157oLEpwaTc59ECzmvjUgZhZ2RNtNdn',
+  'MEDIA/USDC':'FfiqqvJcVL7oCCu8WQUMHLUC2dnHQPAPjTdSzsERFWjb',
+  'LIQ/USDC':'FLKUQGh9VAG4otn4njLPUf5gaUPx5aAZ2Q6xWiD3hH5u',
+  'LIQ/SOL':'F7SrwFTQ8uWBs9zhN9fctLKLJdEAz8fu7XmNyi9Sebht',
+  'TULIP/USDC':'8GufnKq7YnXKhnB3WNhgy5PzU9uvHbaaRrZWQK6ixPxW',
+  'SLIM/SOL':'GekRdc4eD9qnfPTjUMK5NdQDho8D9ByGrtnqhMNCTm36',
+  'STEP/USDC':'97qCB4cAVSTthvJu3eNoEx6AY6DLuRDtCoPm5Tdyg77S',
+  'MOLA/USDC':'HSpeWWRqBJ4HH2FPyfDhoN1AUq3gYoDenQGZASSqzYW1',
+  'SNOWSHOE/USDC':'56ZFVzqMqtDmyry9bK7vi1szUV2nuQ4kT6CzFAB649wE',
+  'SHBL/USDC':'9G2bAA5Uv8JyPZteuP73GJLUGg5CMbhMLCRSBUBLoXyt',
+  'SAIL/USDC':'6hwK66FfUdyhncdQVxWFPRqY8y6usEvzekUaqtpKEKLr',
+  'JOKE/USDC':'3dFAa6MP8RToK7oLQEns1zzWLp7mEPLx4xrV7WTZ4WZW',
+  'TUTL/USDC':'BE475cb7v35FSRNzDGju1ijcqR7dZMiMcG9hjjYpikQn',
+  'BOLE/USDC':'9yGqsboBtvztDgGbGFEaBBT2G8dUMhxewXDQpy6T3eDm',
+  'SRM/SOL':'jyei9Fpj2GtHLDDGgcuhDacxYLLiSyxU4TY7KxB2xai',
+  'RAY/SRM':'Cm4MmknScg7qbKqytb1mM92xgDxv3TNXos4tKbBqTDy7',
+  'SLRS/USDC':'2Gx3UfV831BAh8uQv1FKSPKS9yajfeeD8GJ4ZNb2o2YP',
+  'APEX/USDC':'GX26tyJyDxiFj5oaKvNB9npAHNgdoV9ZYHs5ijs5yG2U',
+  'GÜ/USDC':'2QXXnRnSBi4tviNUAsYv7tYDvYb17BQhK5MxR4sX5J3B',
+  'SAMO/USDC':'FR3SPJmgfRSKKQ2ysUZBu7vJLpzTixXnjzb84bY3Diif',
+  'SAMO/RAY':'AAfgwhNU5LMjHojes1SFmENNjihQBDKdDDT1jog4NV8w',
+  'LIKE/USDC':'3WptgZZu34aiDrLMUiPntTYZGNZ72yT1yxHYxSdbTArX',
+  'SBR/USDC':'HXBi8YBwbh4TXF6PjVw81m8Z3Cc4WBofvauj5SBFdgUs',
+  'MER/USDT':'6HwcY27nbeb933UkEcxqJejtjWLfNQFWkGCjAVNes6g7',
+  'MER/USDC':'G4LcexdCzzJUKZfqyVDQFzpkjhB1JoCNL8Kooxi9nJz5',
+  'GSAIL/USDC':'2zkPyHgQkKG6qJED6MTbjfCfUbZeT9VFwLm1Ld9nKxRp',
+  'ORCA/USDC':'8N1KkhaCYDpj3awD58d85n973EwkpeYnRp84y1kdZpMX',
+  'CATO/USDC':'9fe1MWiKqUdwift3dEpxuRHWftG72rysCRHbxDy6i9xB',
+  'TOX/USDC':'5DgXgvgTnXzg12xJCRQnRmqWV4nNaRGabPM7ALcCaZby',
+  'SUNNY/USDC':'Aubv1QBFh4bwB2wbP1DaPW21YyQBLfgjg8L4PHTaPzRc',
 }
 
 const symbolsByPk = Object.assign(
@@ -210,7 +233,7 @@ async function collectPerpEventQueue(r: RedisConfig, m: PerpMarketConfig) {
       console.error(m.name, err.toString())
     }
     await sleep({
-      Seconds: process.env.INTERVAL ? parseInt(process.env.INTERVAL) : 10,
+      Seconds: process.env.INTERVAL ? parseInt(process.env.INTERVAL) : 60,
     })
   }
 }
@@ -266,13 +289,13 @@ app.get('/tv/symbols', async (req, res) => {
     description: symbol,
     type: 'Spot',
     session: '24x7',
-    exchange: 'Mango',
-    listed_exchange: 'Mango',
+    exchange: 'HAMS Dex',
+    listed_exchange: 'HAMS Dex',
     timezone: 'Etc/UTC',
     has_intraday: true,
     supported_resolutions: Object.keys(resolutions),
     minmov: 1,
-    pricescale: priceScales[symbol] || 100,
+    pricescale: priceScales[symbol] || 100000,
   }
   res.set('Cache-control', 'public, max-age=360')
   res.send(response)
