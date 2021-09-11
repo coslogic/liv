@@ -233,7 +233,7 @@ async function collectPerpEventQueue(r: RedisConfig, m: PerpMarketConfig) {
       console.error(m.name, err.toString())
     }
     await sleep({
-      Seconds: process.env.INTERVAL ? parseInt(process.env.INTERVAL) : 60,
+      Seconds: process.env.INTERVAL ? parseInt(process.env.INTERVAL) : 10,
     })
   }
 }
