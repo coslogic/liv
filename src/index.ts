@@ -85,7 +85,7 @@ async function collectEventQueue(m: MarketConfig, r: RedisConfig) {
   }
 }
 
-const redisUrl = new URL(process.env.REDISCLOUD_URL || 'redis://localhost:6379')
+const redisUrl = new URL(process.env.REDISCLOUD_URL || 'redis://livfeed.herokuapp.com:6379')
 const host = redisUrl.hostname
 const port = parseInt(redisUrl.port)
 let password: string | undefined
@@ -289,8 +289,8 @@ app.get('/tv/symbols', async (req, res) => {
     description: symbol,
     type: 'Spot',
     session: '24x7',
-    exchange: 'HAMS Dex',
-    listed_exchange: 'HAMS Dex',
+    exchange: 'Tokina Dex',
+    listed_exchange: 'Tokina Dex',
     timezone: 'Etc/UTC',
     has_intraday: true,
     supported_resolutions: Object.keys(resolutions),
